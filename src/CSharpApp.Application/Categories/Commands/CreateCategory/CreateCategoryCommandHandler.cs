@@ -1,4 +1,3 @@
-using System.Net.Http.Json;
 using CSharpApp.Application.Interfaces;
 using MediatR;
 
@@ -12,8 +11,7 @@ public class CreateCategoryCommandHandler(IExternalApiClient httpClient, IOption
     {
         try
         {
-            var body = JsonContent.Create(request);
-            var response = await httpClient.Post(_restApiSettings.Categories, body, cancellationToken).ConfigureAwait(false);
+            var response = await httpClient.Post(_restApiSettings.Categories, request, cancellationToken).ConfigureAwait(false);
             response.EnsureSuccessStatusCode();
             var content = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
             return JsonSerializer.Deserialize<Category>(content);

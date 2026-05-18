@@ -1,5 +1,3 @@
-using System.Net;
-using System.Net.Http.Json;
 using CSharpApp.Application.Interfaces;
 using MediatR;
 
@@ -13,8 +11,7 @@ public class CreateProductCommandHandler(IExternalApiClient httpClient, IOptions
     {
         try
         {
-            var body = JsonContent.Create(request);
-            var response = await httpClient.Post(_restApiSettings.Products, body, cancellationToken).ConfigureAwait(false);
+            var response = await httpClient.Post(_restApiSettings.Products, request, cancellationToken).ConfigureAwait(false);
             response.EnsureSuccessStatusCode();
             var content = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
             return JsonSerializer.Deserialize<Product>(content);
