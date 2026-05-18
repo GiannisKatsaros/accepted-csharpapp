@@ -1,5 +1,8 @@
+using CSharpApp.Application.Products.Queries.GetProduct;
 using CSharpApp.Core.Dtos;
+using MediatR;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 
 namespace CSharpApp.Api.Endpoints.Products;
 
@@ -15,11 +18,11 @@ public static class GetProductEndpoint
         return endpoints;
     }
     
-    private static async Task<Results<Ok<Product>, NotFound, ProblemHttpResult>> GetProduct(int id, IProductsService productsService)
+    private static async Task<Results<Ok<Product>, NotFound, ProblemHttpResult>> GetProduct(int id, [FromServices] ISender sender)
     {
         try
         {
-            var product = await productsService.GetProduct(id);
+            var product = await sender.Send(new GetProductQuery{Id = id});
             return product is not null
                 ? TypedResults.Ok(product)
                 : TypedResults.NotFound();

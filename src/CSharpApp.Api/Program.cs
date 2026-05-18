@@ -1,4 +1,5 @@
 using CSharpApp.Api.Endpoints.Products;
+using CSharpApp.Application;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +13,8 @@ builder.Services.AddDefaultConfiguration();
 builder.Services.AddHttpConfiguration();
 builder.Services.AddProblemDetails();
 builder.Services.AddApiVersioning();
+
+builder.Services.AddApplication();
 
 var app = builder.Build();
 
