@@ -21,7 +21,7 @@ public static class CreateCategoryEndpoint
     {
         try
         {
-            var result = await sender.Send(request, cancellationToken);
+            var result = await sender.Send(request, cancellationToken).ConfigureAwait(false);
             return result is not null
                 ? TypedResults.Ok(result)
                 : TypedResults.Problem("Error creating category");

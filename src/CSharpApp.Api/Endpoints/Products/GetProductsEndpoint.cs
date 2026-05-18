@@ -22,7 +22,7 @@ public static class GetProductsEndpoint
     {
         try
         {
-            var products = await sender.Send(new GetProductsQuery(), cancellationToken);
+            var products = await sender.Send(new GetProductsQuery(), cancellationToken).ConfigureAwait(false);
             return TypedResults.Ok(products);
         }
         catch

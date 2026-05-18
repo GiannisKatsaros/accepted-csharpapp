@@ -1,37 +1,26 @@
 using System.Net.Http.Json;
+using CSharpApp.Application.Interfaces;
 using MediatR;
 
 namespace CSharpApp.Application.Categories.Commands.CreateCategory;
 
-public class CreateCategoryCommandHandler : IRequestHandler<CreateCategoryCommand, Category?>
+public class CreateCategoryCommandHandler(IExternalApiClient httpClient, IOptions<RestApiSettings> restApiSettings, ILogger<CreateCategoryCommandHandler> logger) : IRequestHandler<CreateCategoryCommand, Category?>
 {
-    private readonly HttpClient _httpClient;
-    private readonly RestApiSettings _restApiSettings;
-    private readonly ILogger<CreateCategoryCommandHandler> _logger;
-
-    public CreateCategoryCommandHandler(IOptions<RestApiSettings> restApiSettings, ILogger<CreateCategoryCommandHandler> logger)
-    {
-        _restApiSettings = restApiSettings.Value;
-        _httpClient = new HttpClient
-        {
-            BaseAddress = new Uri(_restApiSettings.BaseUrl!)
-        };
-        _logger = logger;
-    }
+    private readonly RestApiSettings _restApiSettings = restApiSettings.Value;
     
-    public async Task<Category?> Handle(CreateCategoryCommand request, CancellationToken cancellationToken)
+    public async Task<Category?> Handle(CreateCategoryCommand request, CancellationToken cancellationToken = default)
     {
         try
         {
             var body = JsonContent.Create(request);
-            var response = await _httpClient.PostAsync(_restApiSettings.Categories, body, cancellationToken);
+            var response = await httpClient.Post(_restApiSettings.Categories, body, cancellationToken).ConfigureAwait(false);
             response.EnsureSuccessStatusCode();
-            var content = await response.Content.ReadAsStringAsync(cancellationToken);
+            var content = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
             return JsonSerializer.Deserialize<Category>(content);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Unhandled error creating category using API");
+            logger.LogError(ex, "Unhandled error creating category using API");
             throw;
         }
     }

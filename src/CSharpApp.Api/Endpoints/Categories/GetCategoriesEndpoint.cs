@@ -22,7 +22,7 @@ public static class GetCategoriesEndpoint
     {
         try
         {
-            var categories = await sender.Send(new GetCategoriesQuery(), cancellationToken);
+            var categories = await sender.Send(new GetCategoriesQuery(), cancellationToken).ConfigureAwait(false);
             return TypedResults.Ok(categories);
         }
         catch

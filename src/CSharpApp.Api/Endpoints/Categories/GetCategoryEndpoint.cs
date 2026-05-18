@@ -22,7 +22,7 @@ public static class GetCategoryEndpoint
     {
         try
         {
-            var product = await sender.Send(new GetCategoryQuery{Id = id}, cancellationToken);
+            var product = await sender.Send(new GetCategoryQuery{Id = id}, cancellationToken).ConfigureAwait(false);
             return product is not null
                 ? TypedResults.Ok(product)
                 : TypedResults.NotFound();

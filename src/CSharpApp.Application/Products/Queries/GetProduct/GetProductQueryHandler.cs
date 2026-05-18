@@ -1,41 +1,31 @@
 using System.Net;
+using CSharpApp.Application.Interfaces;
 using MediatR;
 
 namespace CSharpApp.Application.Products.Queries.GetProduct;
 
-public class GetProductQueryHandler : IRequestHandler<GetProductQuery, Product?>
+public class GetProductQueryHandler(IExternalApiClient httpClient, IOptions<RestApiSettings> restApiSettings, ILogger<GetProductQueryHandler> logger) : IRequestHandler<GetProductQuery, Product?>
 {
-    private readonly HttpClient _httpClient;
-    private readonly RestApiSettings _restApiSettings;
-    private readonly ILogger<GetProductQueryHandler> _logger;
-
-    public GetProductQueryHandler(IOptions<RestApiSettings> restApiSettings, ILogger<GetProductQueryHandler> logger)
-    {
-        _restApiSettings = restApiSettings.Value;
-        _httpClient = new HttpClient
-        {
-            BaseAddress = new Uri(_restApiSettings.BaseUrl!)
-        };
-        _logger = logger;
-    }
+    private readonly RestApiSettings _restApiSettings = restApiSettings.Value;
     
-    public async Task<Product?> Handle(GetProductQuery request, CancellationToken cancellationToken)
+    public async Task<Product?> Handle(GetProductQuery request, CancellationToken cancellationToken = default)
     {
         try
         {
-            var response = await _httpClient.GetAsync($"{_restApiSettings.Products}/{request.Id}", cancellationToken);
+            var response = await httpClient.Get($"{_restApiSettings.Products}/{request.Id}", cancellationToken)
+                .ConfigureAwait(false);
             if (response.StatusCode == HttpStatusCode.BadRequest)
             {
                 return null;
             }
         
             response.EnsureSuccessStatusCode();
-            var content = await response.Content.ReadAsStringAsync(cancellationToken);
+            var content = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
             return JsonSerializer.Deserialize<Product>(content);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Unhandled error fetching product {Id} from API", request.Id);
+            logger.LogError(ex, "Unhandled error fetching product {Id} from API", request.Id);
             throw;
         }
     }

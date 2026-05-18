@@ -22,7 +22,7 @@ public static class GetProductEndpoint
     {
         try
         {
-            var product = await sender.Send(new GetProductQuery{Id = id});
+            var product = await sender.Send(new GetProductQuery{Id = id}).ConfigureAwait(false);
             return product is not null
                 ? TypedResults.Ok(product)
                 : TypedResults.NotFound();

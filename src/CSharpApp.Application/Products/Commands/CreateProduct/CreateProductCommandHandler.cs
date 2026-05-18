@@ -1,38 +1,27 @@
 using System.Net;
 using System.Net.Http.Json;
+using CSharpApp.Application.Interfaces;
 using MediatR;
 
 namespace CSharpApp.Application.Products.Commands.CreateProduct;
 
-public class CreateProductCommandHandler : IRequestHandler<CreateProductCommand, Product?>
+public class CreateProductCommandHandler(IExternalApiClient httpClient, IOptions<RestApiSettings> restApiSettings, ILogger<CreateProductCommandHandler> logger) : IRequestHandler<CreateProductCommand, Product?>
 {
-    private readonly HttpClient _httpClient;
-    private readonly RestApiSettings _restApiSettings;
-    private readonly ILogger<CreateProductCommandHandler> _logger;
+    private readonly RestApiSettings _restApiSettings = restApiSettings.Value;
 
-    public CreateProductCommandHandler(IOptions<RestApiSettings> restApiSettings, ILogger<CreateProductCommandHandler> logger)
-    {
-        _restApiSettings = restApiSettings.Value;
-        _httpClient = new HttpClient
-        {
-            BaseAddress = new Uri(_restApiSettings.BaseUrl!)
-        };
-        _logger = logger;
-    }
-
-    public async Task<Product?> Handle(CreateProductCommand request, CancellationToken cancellationToken)
+    public async Task<Product?> Handle(CreateProductCommand request, CancellationToken cancellationToken = default)
     {
         try
         {
             var body = JsonContent.Create(request);
-            var response = await _httpClient.PostAsync(_restApiSettings.Products, body, cancellationToken);
+            var response = await httpClient.Post(_restApiSettings.Products, body, cancellationToken).ConfigureAwait(false);
             response.EnsureSuccessStatusCode();
-            var content = await response.Content.ReadAsStringAsync(cancellationToken);
+            var content = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
             return JsonSerializer.Deserialize<Product>(content);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Unhandled error creating product using API");
+            logger.LogError(ex, "Unhandled error creating product using API");
             throw;
         }
     }

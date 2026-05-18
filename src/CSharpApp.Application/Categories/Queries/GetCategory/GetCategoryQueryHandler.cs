@@ -1,41 +1,31 @@
 using System.Net;
+using CSharpApp.Application.Interfaces;
+using CSharpApp.Application.Products.Commands.CreateProduct;
 using MediatR;
 
 namespace CSharpApp.Application.Categories.Queries.GetCategory;
 
-public class GetCategoryQueryHandler : IRequestHandler<GetCategoryQuery, Category?>
+public class GetCategoryQueryHandler(IExternalApiClient httpClient, IOptions<RestApiSettings> restApiSettings, ILogger<GetCategoryQueryHandler> logger) : IRequestHandler<GetCategoryQuery, Category?>
 {
-    private readonly HttpClient _httpClient;
-    private readonly RestApiSettings _restApiSettings;
-    private readonly ILogger<GetCategoryQueryHandler> _logger;
-
-    public GetCategoryQueryHandler(IOptions<RestApiSettings> restApiSettings, ILogger<GetCategoryQueryHandler> logger)
-    {
-        _restApiSettings = restApiSettings.Value;
-        _httpClient = new HttpClient
-        {
-            BaseAddress = new Uri(_restApiSettings.BaseUrl!)
-        };
-        _logger = logger;
-    }
+    private readonly RestApiSettings _restApiSettings = restApiSettings.Value;
     
-    public async Task<Category?> Handle(GetCategoryQuery request, CancellationToken cancellationToken)
+    public async Task<Category?> Handle(GetCategoryQuery request, CancellationToken cancellationToken = default)
     {
         try
         {
-            var response = await _httpClient.GetAsync($"{_restApiSettings.Categories}/{request.Id}", cancellationToken);
+            var response = await httpClient.Get($"{_restApiSettings.Categories}/{request.Id}", cancellationToken).ConfigureAwait(false);
             if (response.StatusCode == HttpStatusCode.BadRequest)
             {
                 return null;
             }
         
             response.EnsureSuccessStatusCode();
-            var content = await response.Content.ReadAsStringAsync(cancellationToken);
+            var content = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
             return JsonSerializer.Deserialize<Category>(content);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Unhandled error fetching category {Id} from API", request.Id);
+            logger.LogError(ex, "Unhandled error fetching category {Id} from API", request.Id);
             throw;
         }
     }
