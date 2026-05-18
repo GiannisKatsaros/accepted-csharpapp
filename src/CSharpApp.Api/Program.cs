@@ -1,3 +1,4 @@
+using CSharpApp.Api.Endpoints.Categories;
 using CSharpApp.Api.Endpoints.Products;
 using CSharpApp.Application;
 
@@ -29,5 +30,6 @@ if (app.Environment.IsDevelopment())
 var versionedEndpointRouteBuilder = app.NewVersionedApi();
 
 versionedEndpointRouteBuilder.MapProductsEndpoints();
+versionedEndpointRouteBuilder.MapCategoriesEndpoints();
 
 app.Run();
