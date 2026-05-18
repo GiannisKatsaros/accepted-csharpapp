@@ -10,7 +10,7 @@ public static class CreateProductEndpoint
     public static IEndpointRouteBuilder MapCreateProductEndpoint(this IEndpointRouteBuilder endpoints)
     {
         endpoints
-            .MapPost("api/v{version:apiVersion}/getproducts", CreateProduct)
+            .MapPost("api/v{version:apiVersion}/products", CreateProduct)
             .WithName("CreateProduct")
             .HasApiVersion(1.0);
         

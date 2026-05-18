@@ -11,7 +11,7 @@ public static class GetProductsEndpoint
     public static IEndpointRouteBuilder MapGetProductsEndpoint(this IEndpointRouteBuilder endpoints)
     {
         endpoints
-                .MapGet("api/v{version:apiVersion}/getproducts", GetProducts)
+                .MapGet("api/v{version:apiVersion}/products", GetProducts)
                 .WithName("GetProducts")
                 .HasApiVersion(1.0);
         
