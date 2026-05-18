@@ -7,15 +7,14 @@ namespace CSharpApp.Infrastructure.Auth;
 public class AuthService(HttpClient httpClient, TokenStorage tokenStorage, IOptions<RestApiSettings> restApiSettings)
 {
     private readonly RestApiSettings _restApiSettings = restApiSettings.Value;
-    
-    public async Task<string> GetAccessToken(CancellationToken cancellationToken = default)
+
+    public Task<string> GetAccessToken(CancellationToken cancellationToken = default)
     {
-        return tokenStorage switch
+        return tokenStorage.GetOrRefresh(() => tokenStorage switch
         {
-            { AccessToken: not null, IsAccessTokenExpired: false } => tokenStorage.AccessToken,
-            { RefreshToken: not null, IsRefreshTokenExpired: false } => await RefreshAccessToken(cancellationToken),
-            _ => await Login(cancellationToken)
-        };
+            { RefreshToken: not null, IsRefreshTokenExpired: false } => RefreshAccessToken(cancellationToken),
+            _ => Login(cancellationToken)
+        }, cancellationToken);
     }
 
     private async Task<string> Login(CancellationToken cancellationToken = default)
