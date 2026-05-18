@@ -6,6 +6,7 @@ public static class CategoriesEndpoints
     {
         endpoints.MapCreateCategoryEndpoint();
         endpoints.MapGetCategoriesEndpoint();
+        endpoints.MapGetCategoryEndpoint();
         
         return endpoints;
     }
