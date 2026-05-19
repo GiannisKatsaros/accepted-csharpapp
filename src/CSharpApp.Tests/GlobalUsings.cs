@@ -1,0 +1,9 @@
+global using System.Net;
+global using System.Text;
+global using System.Text.Json;
+global using CSharpApp.Application.Interfaces;
+global using CSharpApp.Core.Dtos;
+global using CSharpApp.Core.Settings;
+global using Microsoft.Extensions.Logging.Abstractions;
+global using Microsoft.Extensions.Options;
+global using NSubstitute;
