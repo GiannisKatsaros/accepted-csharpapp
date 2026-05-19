@@ -1,5 +1,6 @@
 using CSharpApp.Api.Endpoints.Categories;
 using CSharpApp.Api.Endpoints.Products;
+using CSharpApp.Api.Middleware;
 using CSharpApp.Application;
 using CSharpApp.Infrastructure;
 
@@ -26,6 +27,8 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
+
+app.UseMiddleware<PerformanceLoggingMiddleware>();
 
 //app.UseHttpsRedirection();
 
